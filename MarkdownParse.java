@@ -10,22 +10,25 @@ public class MarkdownParse {
         // find the next [, then find the ], then find the (, then take up to
         // the next )
         int currentIndex = 0;
-        boolean foundParen = true;
-        while(currentIndex < markdown.length() && foundParen) {
+        while(currentIndex < markdown.length()) {
             int nextOpenBracket = markdown.indexOf("[", currentIndex);
             int nextCloseBracket = markdown.indexOf("]", nextOpenBracket);
             int openParen = markdown.indexOf("(", nextCloseBracket);
             int closeParen = markdown.indexOf(")", openParen);
-            if(!markdown.substring(closeParen+1, markdown.length()).contains(")")){
-                foundParen = false;
-            }
-            if(markdown.substring(openParen+1, closeParen).contains(".") &&
-               !markdown.substring(openParen+1, closeParen).contains(" ") &&
-               (nextOpenBracket == 0 ||
-               !markdown.substring(nextOpenBracket - 1, nextOpenBracket).contains("!"))){
+            // check if there even is an openParen and closeParen before
+            // creating a substring. Also check closeParen is before openParen
+            if (openParen != -1 && closeParen > openParen && closeParen != -1) {
                 toReturn.add(markdown.substring(openParen + 1, closeParen));
-               }
-            currentIndex = closeParen + 1;
+                currentIndex = closeParen + 1;
+            } else {
+                currentIndex = nextCloseBracket + 1;
+            }
+            // if there is no open bracket from the current index
+            // update currentIndex so that it's greater than markdown.length()
+            // in order to escape the while loop
+            if (markdown.indexOf("[", currentIndex) == -1 || markdown.length() < 4) {
+                currentIndex = markdown.length() + 1;
+            }
         }
         return toReturn;
     }
